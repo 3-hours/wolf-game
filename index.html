@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>灰太狼</title>
+	<style type="text/css">
+		*{
+			margin:0;
+			padding:0;
+		}
+		body {
+			background:url(img/jdt_bg.png) repeat;
+			cursor: url(img/pan.png), auto;
+			-webkit-user-select:none;
+		}
+		#wrap {
+			width: 320px;
+			height: 480px;
+			background:#deab4a url(img/game_bg.jpg) no-repeat;
+			margin:3rem auto;
+			position: relative;
+		}
+		#score {
+			position: absolute;
+			left: 60px;
+			top:5px;
+			color: skyblue;
+			font-size: 24px;
+			-webkit-user-selctor:none;
+		}
+		#wrap > div{
+			background: url(img/h.png) no-repeat;
+			width:108px;
+			height: 101px;
+			position: absolute;
+		}
+		#progress {
+			background: url(img/progress.png);
+			height: 16px;
+			width:180px;
+			position: absolute;
+			top:66px;
+			left: 63px; 
+			transition: all 0.1s linear;
+		}
+		.over{
+			position: absolute;
+			width: 200px;
+			height: 100px;
+			padding:50px 20px;
+			border-radius: 10px;
+			text-align: center;
+			color: black;
+			font-size: 40px;
+			font-weight: bold;
+			letter-spacing: 2px;
+			background-color: rgba(255,255,255,0.9);
+			top:0;
+			left:0;
+			bottom:0;
+			right:0;
+			margin:auto;
+		}
+		.again {
+			color: green;
+			font-size: 30px;
+			margin-top: 20px;
+		}
+	</style>
+</head>
+<body>
+	<div id="wrap">
+		<p id="score">0</p>
+		<p id="progress"></p>
+	</div>	
+	<script type="text/javascript">
+		var wrap = document.getElementById("wrap");
+		var scoreBar = document.getElementById("score");
+		var progress = document.getElementById("progress");
+		var score = 0;
+		var wolfPoL = [98 ,18  ,186,103,16 ,199,117,30 ,207];
+		var wolfPoT = [115,160 ,142,192,221,212,274,294,295];
+		var arrrnd  = [0,1,2,3,4,5,6,7,8];
+		var timeSmall=100;
+		var timeBig = timeSmall*10;
+		function rnd(min,max) {
+			return parseInt(Math.random() * (max-min-1)) + min;
+		}
+		function createWolf() {
+			var sound = document.createElement("audio");
+			var wolf = document.createElement("div");
+			var who = Math.random() - 0.8 >0 ? "x" :"h";
+			wolf.style.backgroundImage = "url(img/" + who +".png)";
+			var leftIndex = rnd(0,9);
+
+			//arrrnd.sort(function(){return Math.random()-0.5});
+
+			wolf.style.left = wolfPoL[leftIndex] + "px" ;
+			wolf.style.top = wolfPoT[leftIndex] + "px";
+			
+			wolf.index = 0;
+			wolf.upFlag = true;
+			wolf.timer =  setInterval(function() {
+				if(wolf.upFlag) {
+					wolf.index++;
+				}else {
+					wolf.index--;
+				}
+				if(wolf.index === 5){
+					wolf.upFlag = false;
+				}
+				if(wolf.index <0 || wolf.index >10) {
+					clearInterval(wolf.timer); //当灰太狼跑下去的时候清除计时器 
+					//wolf.remove();
+					wolf.parentNode.removeChild(wolf);
+					//wrap.removeChild(wolf);
+				}
+				wolf.style.backgroundPosition = -wolf.index*108 + "px";
+			},timeSmall)
+			wolf.onclick = function() {
+				this.index = 6; //切换到狼被打的那一桢
+				sound.src = "img/boom.ogg";
+				this.upFlag = true;
+				this.onclick = null;
+				if(who === "h") {
+					score += 10;
+				}else {
+					score -= 10;
+				}
+				scoreBar.innerHTML = score;
+			}
+			wrap.appendChild(wolf);
+		}
+	
+		var len = progress.offsetWidth;
+		var again;
+
+
+		preStart();
+		function preStart(){
+			var timer2 = setInterval(function() {
+				document.body.setAttribute("style","cursor: url(img/pan.png), auto;");
+				createWolf();
+				len -=timeSmall/10;
+				progress.style.width = len +"px";
+				if(len <0 ){
+					clearInterval(timer2);
+					var newP = document.createElement("p");
+					newP.innerHTML = "时间到了";
+					again = document.createElement("p");
+
+				again.onclick = function() {
+					len = 180;
+					preStart();
+					newP.style.display="none";
+					scoreBar.innerHTML = 0;
+				}
+
+					again.innerHTML = "重玩";
+					again.setAttribute("class","again");
+					newP.appendChild(again);
+					newP.className = "over";
+					wrap.appendChild(newP);
+					document.body.setAttribute("style","cursor: pointer");
+					// document.body.style.cursor="pointer";
+					}
+				},timeBig)
+			}
+		
+	</script>
+</body>
+</html>
